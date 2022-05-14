@@ -1,3 +1,4 @@
+//create map and starting position
 var myMap = L.map("map", {
     center: [40.7, -73.95],
     zoom: 3
@@ -12,12 +13,10 @@ var myMap = L.map("map", {
     id: "mapbox/streets-v11",
     accessToken: API_KEY
   }).addTo(myMap);
-
+// link to earthquake data 
 var link = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
-
 d3.json(link, function(data) {
-    console.log(data);
-
+// Define colours depending on magnitude size
 function mag_color (magnitude){
     switch(true) {
         case magnitude >= 5:
@@ -35,12 +34,12 @@ function mag_color (magnitude){
       }
 
 }
-
+// pull data and create makers corresponding to earthquakes varying size and colour magnitude
 L.geoJSON(data, {
     pointToLayer: function (feature, latlng) {
         return L.circleMarker(latlng,
             {
-            radius: (feature.properties.mag) * 4,
+            radius: (feature.properties.mag) * 4.5,
             fillColor: mag_color (feature.properties.mag),
             fillOpacity: 1,
             color: "black",
@@ -48,19 +47,20 @@ L.geoJSON(data, {
             weight: 0.3
           });
     },
+    // Create Popup for each earthquake when selected. displaying coordinates, date & time, and magnitude
     onEachFeature: function(feature, layer) {
         layer.bindPopup(`<h3>Location: ${feature.properties.place} </h3>
         <p>(latitude:${feature.geometry.coordinates[1]}, longitude: ${feature.geometry.coordinates[0]})</p>
         <hr>
-        <p>Date Recorded: ${Date(feature.properties.time)}"</p>
+        <p>Date Recorded: ${Date(feature.properties.time)}</p>
         <hr>
         <p>Magnitude:${feature.properties.mag}</p>`);
       }
-
+// bind to the map layer
 }).addTo(myMap);
 
 
-
+// Create legend for the colours corresponding to earthquake magnitude
 var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
@@ -81,7 +81,5 @@ legend.onAdd = function (map) {
 };
 
 legend.addTo(myMap);
-
-
 });
 
